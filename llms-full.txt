@@ -1,0 +1,75 @@
+# when-code-when-llm — AI Reference
+
+This document is the self-contained AI reference for `when-code-when-llm` (shimo4228, MIT), a Claude Code Agent Skill that answers one recurring engineering question: for this one task, should I write deterministic code (regex, keyword match, AST parse, schema validation) or call an LLM (classification, embedding similarity, judge)? The skill provides a single judgment axis — structural vs semantic — a false-positive test for borderline cases, worked examples of both failure directions, and an enumerate/decide split for tasks where detection is structural but resolution needs judgment.
+
+> **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
+
+## Project Facts
+
+- **Name**: when-code-when-llm
+- **License**: MIT
+- **GitHub**: https://github.com/shimo4228/when-code-when-llm
+- **Author**: shimo4228 (shimomoto-tatsuya)
+- **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
+- **Skill type**: Markdown Agent Skill (design-pattern skill, no scripts or agents)
+- **Layout**: `skills/when-code-when-llm/SKILL.md`
+- **Install**: `cp -r skills/when-code-when-llm ~/.claude/skills/when-code-when-llm`
+- **Marketplace**: `/skills add shimo4228/when-code-when-llm`
+- **Invocation**: `/when-code-when-llm` slash command or automatic trigger
+- **Judgment axis**: structural (code) vs semantic (LLM)
+- **Key concepts**: false-positive test, enumerate/decide split, two symmetric failure modes
+- **Code tools covered**: regex, keyword / substring match, AST / parser, JSON Schema, Pydantic, format checks (UUID, ISO 8601, URL host)
+- **LLM tools covered**: LLM classification, embedding similarity, LLM judge, LLM extraction
+- **Decision checklist**: 6 items, ending with a two-prototype tiebreak on ten hand-labeled examples
+- **Companion ADR**: [AKC ADR-0008 "Code-LLM Layering"](https://github.com/shimo4228/agent-knowledge-cycle/blob/main/docs/adr/0008-code-and-llm-collaboration.md) — this skill is its "how" counterpart
+- **Canonical source**: the author's live Claude Code harness; this repo is a one-way mirror via `scripts/sync-from-local.sh`
+- **Siblings**: `code-and-llm-collaboration` (pipeline-level counterpart), `search-first`, `llms-txt-writer`, `skill-comply`, `context-sync`, `skill-stocktake`, `rules-distill`, `learn-eval`
+- **Standard**: agentskills.io/specification
+
+## Prior Research References
+
+| Short name | Reference | Used for |
+|---|---|---|
+| AKC ADR-0008 | shimo4228 (2026). Code-LLM Layering, Agent Knowledge Cycle, DOI 10.5281/zenodo.19200726 | The "why": code owns determinism / auditability / termination, LLM owns meaning |
+| AKC skill source | agent-knowledge-cycle/docs/skills/when-code-when-llm.md | The research-line document this skill distills |
+| Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill follows |
+
+## What is when-code-when-llm?
+
+when-code-when-llm is defined as a Claude Code Agent Skill that decides, for a single task, whether deterministic code or an LLM call is the right tool. It refers to a decision framework built on one axis — is the property being checked structural (decidable from the literal bytes) or semantic (requires understanding meaning)? The skill is a kind of tool-selection guard: it fires when an agent catches itself patching a regex that keeps misfiring, or when it is about to spend an LLM call on something `str.endswith` answers in a nanosecond.
+
+## What is the structural-vs-semantic axis?
+
+The axis is defined as the question "what kind of property am I checking?" — not "is this task hard?". A property is structural when it depends only on the literal shape of the input: characters, tokens, delimiters, syntax, format. Examples: tag stripping, schema validation, file-extension routing, UUID format checks. A property is semantic when deciding it requires understanding what the text means: intent, topic, tone, category, equivalence across wording. Examples: bug-report vs feature-request classification, duplicate detection across different wording, complaint detection. Structural properties get code (regex, AST, JSON Schema); semantic properties get an LLM (classification, embeddings, judge).
+
+## What is the false-positive test?
+
+The false-positive test is defined as the borderline-case discriminator: "Can I imagine two inputs where the same rule is right for one and wrong for the other, and the difference is about meaning — not about characters?" If no, the property is structural and code is correct. If yes, the property is semantic and an LLM is correct. The concrete form: write the regex, then try to produce three counter-examples in 60 seconds. If you can, every further regex tweak will trade one false positive for a new false negative — stop patching and switch tools.
+
+## What are the two symmetric failure modes?
+
+The two failure modes are defined as code-where-LLM-belongs and LLM-where-code-belongs. Code-where-LLM-belongs means writing a regex for a semantic job — the pattern grows, exceptions multiply, accuracy stays stuck (example: classifying `test_utils.py` vs `contest.py` by the substring "test"). LLM-where-code-belongs means paying latency, tokens, and nondeterminism for a structural check (example: asking an LLM whether a string is a valid UUID when `uuid.UUID(s)` in a try/except is one line and always correct). The skill treats neither tool as superior — the failure is forcing one tool to do the other's job.
+
+## What is the enumerate/decide split?
+
+The enumerate/decide split is defined as the pattern for tasks where the axis cuts through the middle of a single task: one stage is structural, the next is semantic. Detection is structural — "the same ID carries two or more distinct label values across files" is decidable from bytes, so a linter enumerates every case deterministically in CI. Resolution is semantic — which label is canonical requires judgment, so the review conversation decides. The working rule: the linter reports, never auto-fixes; judgment resolves; never let one tool do both halves. The same seam recurs in duplicate-candidate detection vs merge decision, broken-link enumeration vs replacement choice, and style-violation flagging vs rename choice.
+
+## When does the skill trigger?
+
+The skill triggers when an agent catches itself writing a regex that keeps producing false positives or negatives on edge cases, when it is about to call an LLM for something a three-line code check would handle, or when a single task mixes exact detection with judgment-based resolution. The third exception added to a regex is the named signal: not to add a fourth, but to reclassify the task as semantic and switch tools.
+
+## How does this skill relate to AKC ADR-0008?
+
+The relationship means this skill is the "how" counterpart to [AKC ADR-0008 "Code-LLM Layering"](https://github.com/shimo4228/agent-knowledge-cycle/blob/main/docs/adr/0008-code-and-llm-collaboration.md), the "why" document in the Agent Knowledge Cycle research line (DOI 10.5281/zenodo.19200726). ADR-0008 states the layering principle: code owns determinism, auditability, control flow, and termination; the LLM owns meaning; never let the LLM own durable state or termination. This skill operationalizes that principle as a per-task decision procedure with a checklist and worked examples.
+
+## How does it differ from code-and-llm-collaboration?
+
+The difference is defined by granularity. when-code-when-llm answers "which tool for this one task?" — a per-task decision. [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration) applies the same structural-vs-semantic axis one level up: "how do code layers and LLM layers compose in one pipeline?" — a pipeline-level design question. The two are sibling skills in the same AKC research line and share the axis; they differ only in the unit of analysis (task vs pipeline).
+
+## Why do naive rules push agents the wrong direction?
+
+Several well-meaning rules compose into a regex-first bias that overshoots into semantic territory: "deterministic beats probabilistic" (true for structural checks, wrong framing when the ground truth is itself probabilistic), "code graders beat model graders" (true for byte-level equality, wrong for sentence-equivalence judgments), and "start simple — try a regex first" (good heuristic only if the agent actually stops when the regex sprouts exceptions). The skill names the failure: applying structural rules to semantic tasks and refusing to switch when the evidence accumulates. Symmetrically, it warns against reaching for an LLM because it feels modern.
+
+## Who is shimo4228?
+
+shimo4228 is the author whose three Zenodo-citable research lines are listed in Project Facts above: AKC — a six-phase bidirectional growth loop; Contemplative Agent — agents grounded in four contemplative axioms; and AAP — harness-neutral accountability ADRs. This skill is defined as a design-pattern skill of the AKC research line, distilled from [agent-knowledge-cycle/docs/skills/when-code-when-llm.md](https://github.com/shimo4228/agent-knowledge-cycle/blob/main/docs/skills/when-code-when-llm.md).
