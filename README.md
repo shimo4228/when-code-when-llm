@@ -1,5 +1,7 @@
 # when-code-when-llm
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/when-code-when-llm)
+
 An [Agent Skill](https://agentskills.io/specification) that answers one recurring engineering question: **for this one task, should I write deterministic code or call an LLM?** It gives the agent a single decision axis — is the property being checked *structural* or *semantic* — plus a false-positive test and worked examples of both failure directions.
 
 ## Install
