@@ -10,11 +10,11 @@ This document is the self-contained AI reference for `when-code-when-llm` (shimo
 - **License**: MIT
 - **GitHub**: https://github.com/shimo4228/when-code-when-llm
 - **Author**: shimo4228 (shimomoto-tatsuya)
-- **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
+- **Author hub**: [shimo4228/shimo4228](https://github.com/shimo4228/shimo4228) lists the author's practice lines and their concept DOIs; this skill pairs with [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726))
 - **Skill type**: Markdown Agent Skill (design-pattern skill, no scripts or agents)
 - **Layout**: `skills/when-code-when-llm/SKILL.md`
-- **Install**: `cp -r skills/when-code-when-llm ~/.claude/skills/when-code-when-llm`
-- **Marketplace**: `/skills add shimo4228/when-code-when-llm`
+- **Install**: clone the repo and copy `skills/when-code-when-llm` into the project's `.claude/skills/` (per-project install recommended; copying into `~/.claude/skills/` loads it in every project, the setup the author retired)
+- **Requirements**: Claude Code or another agent that reads Agent Skills; no API key, no code to run
 - **Invocation**: `/when-code-when-llm` slash command or automatic trigger
 - **Judgment axis**: structural (code) vs semantic (LLM)
 - **Key concepts**: false-positive test, enumerate/decide split, two symmetric failure modes
@@ -22,7 +22,7 @@ This document is the self-contained AI reference for `when-code-when-llm` (shimo
 - **LLM tools covered**: LLM classification, embedding similarity, LLM judge, LLM extraction
 - **Decision checklist**: 6 items, ending with a two-prototype tiebreak on ten hand-labeled examples
 - **Companion ADR**: [AKC ADR-0008 "Code-LLM Layering"](https://github.com/shimo4228/agent-knowledge-cycle/blob/main/docs/adr/0008-code-and-llm-collaboration.md) — this skill is its "how" counterpart
-- **Canonical source**: the author's live Claude Code harness; this repo is a one-way mirror via `scripts/sync-from-local.sh`
+- **Status**: frozen public record, no longer synced or developed; the author retired the harness copy on 2026-08-02, so `scripts/sync-from-local.sh` now aborts
 - **Siblings**: `code-and-llm-collaboration` (pipeline-level counterpart), `search-first`, `llms-txt-writer`, `skill-comply`, `context-sync`, `skill-stocktake`, `rules-distill`, `learn-eval`
 - **Standard**: agentskills.io/specification
 
@@ -31,7 +31,7 @@ This document is the self-contained AI reference for `when-code-when-llm` (shimo
 | Short name | Reference | Used for |
 |---|---|---|
 | AKC ADR-0008 | shimo4228 (2026). Code-LLM Layering, Agent Knowledge Cycle, DOI 10.5281/zenodo.19200726 | The "why": code owns determinism / auditability / termination, LLM owns meaning |
-| AKC skill source | agent-knowledge-cycle/docs/skills/when-code-when-llm.md | The research-line document this skill distills |
+| AKC skill source | Formerly published under `docs/skills/` in the Agent Knowledge Cycle repository; extracted to this standalone repository at v1.0.0 (2026-06-12) | The research-line origin of this skill |
 | Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill follows |
 
 ## What is when-code-when-llm?
@@ -56,7 +56,7 @@ The enumerate/decide split is defined as the pattern for tasks where the axis cu
 
 ## When does the skill trigger?
 
-The skill triggers when an agent catches itself writing a regex that keeps producing false positives or negatives on edge cases, when it is about to call an LLM for something a three-line code check would handle, or when a single task mixes exact detection with judgment-based resolution. The third exception added to a regex is the named signal: not to add a fourth, but to reclassify the task as semantic and switch tools.
+The skill triggers when an agent catches itself writing a regex that keeps producing false positives or negatives on edge cases, or when it is about to call an LLM for something a three-line code check would handle. These are the two situations its description names; the enumerate/decide split is covered inside the skill but is not a trigger, so for a mixed task call `/when-code-when-llm` by name. The third exception added to a regex is the named signal: not to add a fourth, but to reclassify the task as semantic and switch tools.
 
 ## How does this skill relate to AKC ADR-0008?
 
@@ -64,7 +64,7 @@ The relationship means this skill is the "how" counterpart to [AKC ADR-0008 "Cod
 
 ## How does it differ from code-and-llm-collaboration?
 
-The difference is defined by granularity. when-code-when-llm answers "which tool for this one task?" — a per-task decision. [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration) applies the same structural-vs-semantic axis one level up: "how do code layers and LLM layers compose in one pipeline?" — a pipeline-level design question. The two are sibling skills in the same AKC research line and share the axis; they differ only in the unit of analysis (task vs pipeline).
+The difference is defined by granularity. when-code-when-llm answers "which tool for this one task?" — a per-task decision. [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration) applies the same structural-vs-semantic axis one level up: "how do code layers and LLM layers compose in one pipeline?" — a pipeline-level design question. The two share the axis and differ in the unit of analysis (task vs pipeline). when-code-when-llm is a frozen record; code-and-llm-collaboration is the maintained one, where the axis lives on.
 
 ## Why do naive rules push agents the wrong direction?
 
@@ -72,4 +72,4 @@ Several well-meaning rules compose into a regex-first bias that overshoots into 
 
 ## Who is shimo4228?
 
-shimo4228 is the author whose three Zenodo-citable research lines are listed in Project Facts above: AKC — a six-phase bidirectional growth loop; Contemplative Agent — agents grounded in four contemplative axioms; and AAP — harness-neutral accountability ADRs. This skill is defined as a design-pattern skill of the AKC research line, distilled from [agent-knowledge-cycle/docs/skills/when-code-when-llm.md](https://github.com/shimo4228/agent-knowledge-cycle/blob/main/docs/skills/when-code-when-llm.md).
+shimo4228 is the author of this skill and of several long-running practice lines, listed with their concept DOIs on the author's hub, [shimo4228/shimo4228](https://github.com/shimo4228/shimo4228). This skill is defined as a design-pattern skill of the Agent Knowledge Cycle (AKC) line — a six-phase, human-gated cycle that turns a coding agent's repeated experience into skills and rules (DOI 10.5281/zenodo.19200726). It was first published inside the AKC repository under `docs/skills/` and extracted here as a standalone repository.
