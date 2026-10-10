@@ -14,7 +14,7 @@
 - False-positive test: "can two inputs make the same rule right for one and wrong for the other, where the difference is meaning, not characters?" — yes means semantic
 - Two symmetric failure modes: code-where-LLM-belongs (regex sprouting exceptions) and LLM-where-code-belongs (paying tokens for `str.endswith`)
 - Enumerate/decide split: when one task mixes both, code enumerates deterministically (linter in CI), judgment resolves (review conversation decides) — never let one tool do both halves
-- Canonical copy lives in the author's Claude Code harness; this repo is a one-way mirror via `scripts/sync-from-local.sh`
+- Status: frozen public record, no longer synced or developed; the author retired the harness copy on 2026-08-02, so `scripts/sync-from-local.sh` now aborts
 
 ## Standard reference
 
@@ -24,10 +24,11 @@
 ## Sibling skills
 
 - [code-and-llm-collaboration](https://github.com/shimo4228/code-and-llm-collaboration): the same structural-vs-semantic axis at pipeline level — how code layers and LLM layers compose
-- [search-first](https://github.com/shimo4228/search-first): enforces research-before-coding with a 4-way Adopt / Extend / Compose / Build decision
+- [search-first](https://github.com/shimo4228/search-first): makes the agent search registries, code, papers and official docs before building; the caller picks Adopt, Adopt-part or Build
 - [llms-txt-writer](https://github.com/shimo4228/llms-txt-writer): writes AI-facing docs optimized for ChatGPT / Perplexity / Gemini citation
 - [skill-comply](https://github.com/shimo4228/skill-comply): measures whether agents actually follow skill / rule definitions
 - [context-sync](https://github.com/shimo4228/context-sync): audits and fixes project documentation roles
 - [skill-stocktake](https://github.com/shimo4228/skill-stocktake): quality audit for skills and commands
 - [rules-distill](https://github.com/shimo4228/rules-distill): scan installed skills, extract cross-cutting principles, and distill them into rules
 - [learn-eval](https://github.com/shimo4228/learn-eval): extract reusable patterns from sessions, self-evaluate quality, and save to the right location
+- [shimo4228](https://github.com/shimo4228/shimo4228): the author's hub, with the long-running practice lines, their DOIs, and the tools for Claude Code
